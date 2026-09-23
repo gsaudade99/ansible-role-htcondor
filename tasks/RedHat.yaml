@@ -22,20 +22,36 @@
     state: present
   when: ansible_distribution_major_version|int >= 10
 
-- name: Add EPEL GPG key
-  ansible.builtin.rpm_key:
-    state: present
-    key: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+- name: Download EPEL GPG key
+  ansible.builtin.get_url:
+    url: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+    dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Import EPEL GPG key
+  ansible.builtin.command:
+    cmd: rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+  changed_when: false
 
 - name: Add YUM repository for EPEL
   ansible.builtin.yum:
     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
     state: present
 
-- name: Add HTCondor GPG key
-  ansible.builtin.rpm_key:
-    state: present
-    key: https://research.cs.wisc.edu/htcondor/repo/keys/HTCondor-{{ htcondor_version }}-Key
+- name: Download HTCondor GPG key
+  ansible.builtin.get_url:
+    url: https://research.cs.wisc.edu/htcondor/repo/keys/HTCondor-{{ htcondor_version }}-Key
+    dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-HTCondor-{{ htcondor_version }}
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Import HTCondor GPG key
+  ansible.builtin.command:
+    cmd: rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-HTCondor-{{ htcondor_version }}
+  changed_when: false
 
 - name: Add YUM repository for HTCondor
   ansible.builtin.yum:
